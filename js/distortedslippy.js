@@ -86,7 +86,8 @@
 	var yellowMaterial = new THREE.MeshBasicMaterial({color: 0xFFFF00, wireframe: false});
 	var redMaterial = new THREE.MeshBasicMaterial({color: 0x7D0000, wireframe: false, side: THREE.DoubleSide});
 	var blueMaterial = new THREE.MeshBasicMaterial({color: 0x2447B2, wireframe: false});
-	var boundaryMaterial = new THREE.LineBasicMaterial({ opacity: 1.0, linewidth: 5,  color: 0x2447B2 });
+	//var boundaryMaterial = new THREE.LineBasicMaterial({ opacity: 1.0, linewidth: 5,  color: 0x2447B2 });
+	var boundaryMaterial = new THREE.MeshBasicMaterial({color: 0x2447B2, side: THREE.DoubleSide, wireframe: false, transparent: false, opacity: 1});
 	var whiteMaterial = new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: false, side: THREE.DoubleSide});
 	var blackMaterial = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: false, side: THREE.DoubleSide});
 	
@@ -113,6 +114,18 @@
 
 //-------------------------------------------------------------------------------------------
 //functions
+	function linePathGeom(verts, linewidth)
+	{
+		var geom = new THREE.Geometry()
+		for (var i=0; i<verts.length-1; i++)
+		{
+			var segment = new THREE.LineCurve3(verts[i],verts[i+1]);
+			var segmentGeom =  new THREE.TubeGeometry(segment, 1, linewidth, 5, false);
+			geom.merge(segmentGeom);
+		}
+		return geom;
+	}
+
 
 	function makeMyMap(error, a, b, c, d) {
 
@@ -253,17 +266,32 @@
 		} //end loop: tiles
 		bezierPatchNodeGroup.position.set(0,0,-7);
 		cleanup(boundaryNodeGroup);
-		var boundaryGeometry = coords2geometry(boundaryCoords, myAffineDeformation);
-		var boundaryObject = new THREE.Line(boundaryGeometry, boundaryMaterial);
+		//var boundaryGeometry = coords2geometry(boundaryCoords, myAffineDeformation);
+		//var boundaryObject = new THREE.Line(boundaryGeometry, boundaryMaterial);
+		var boundaryGeometry = linePathGeom(coords2geometry(boundaryCoords, myAffineDeformation).vertices, 2);
+		var boundaryObject = new THREE.Mesh(boundaryGeometry, boundaryMaterial);
 		boundaryNodeGroup.add(boundaryObject);		
 		
 		cleanup(metroLineNodeGroup);
+		/*
+		//WEBGL does not render linewidth correctly
 		for (var i=0; i<metroLineFeatures.length; i++) {
 			var metrolinegeom = coords2geometry(metroLineFeatures[i].octgeometry.coordinates)
 			var metrolinematerial = new THREE.LineBasicMaterial({ color: metroLineFeatures[i].properties.color, opacity: 1, linewidth: 3 });
 			var metrolineobject = new THREE.Line(metrolinegeom, metrolinematerial);
-			metroLineNodeGroup.add(metrolineobject);		
-		}		
+			metroLineNodeGroup.add(metrolineobject);
+		}*/
+		for (var i=0; i<metroLineFeatures.length; i++) {
+			var verts = coords2geometry(metroLineFeatures[i].octgeometry.coordinates).vertices;
+			var linewidth = 2.5;
+			var metrolinematerial = new THREE.MeshBasicMaterial({color: metroLineFeatures[i].properties.color, side: THREE.DoubleSide, wireframe: false, transparent: false, opacity: 1});
+			var metrogeom = linePathGeom(verts, linewidth);
+			var metrolineobject = new THREE.Mesh(metrogeom, metrolinematerial);
+			metroLineNodeGroup.add(metrolineobject);
+		}
+
+
+
 		metroLineNodeGroup.position.set(0,0,-1);
 	}//end func: zoomed
 	function transform2D(s, t, p) {
@@ -316,6 +344,6 @@
 				point = affineDeformation.pointMover_2Darray(coords[i]);
 			var screenCoord = projection(point);
 			geometry.vertices.push(new THREE.Vector3(screenCoord[0],screenCoord[1], -5));
-    }
+    	}
 		return geometry;
 	}
