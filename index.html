@@ -16,7 +16,7 @@
 		<link rel="stylesheet" type="text/css" href="css/demo.css" media="screen" />
 </head>
 <body>
-<h2> Octilinear Metro Layout and Distorted Slippy Map </h2>
+<h2> Distorted Slippy Map </h2>
 <div id="gldiv">
 </div>
 		<script>
@@ -24,7 +24,7 @@
 		</script>
 		<script type="text/javascript" src="js/distortedslippy.js"></script>
 		<p>
-			I started porting my <a href="http://sglab.kaist.ac.kr/MetroVis">Metro Map work</a> from C++/OpenGL to D3.js + Three.js.
+			Used D3.js to load data and Three.js to draw.
 			I used image warping to distort the map using the metro stations as control points.
 			As for raster tile tile distortion, it could be probably done in pure D3 as demonstrated <a href="http://www.jasondavies.com/maps/raster/">here</a>,
 			but I thought it would be faster in WebGL (Three.js).
