@@ -56,7 +56,7 @@
 	camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
 	
 	// create a renderer and set the size
-	var renderer = new THREE.WebGLRenderer();
+	var renderer = new THREE.WebGLRenderer({ antialias: true });
 	$("#gldiv").append(renderer.domElement);
 	$("canvas").attr("id", "glcanvas");
 	$("canvas").attr("class", "framed");
